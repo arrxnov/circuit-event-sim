@@ -91,8 +91,11 @@ int Gate::notGate{
 }
 */
 int Gate::getDelay() const { return delay; }
-Wire* Gate::getInput1(int) const { return input1; }
-Wire* Gate::getInput2(int) const { return input2; }
+Wire* Gate::getInput(int i) const 
+{
+    if (i == 1) return input1;
+    else return input2;
+}
 Wire* Gate::getOutput() const { return output; }
 int Gate::evaluate() const {
     int i1 = input1->getValue();
@@ -130,5 +133,6 @@ int Gate::evaluate() const {
         else if (type == NOR) returnVal = !(i1 | i2);
         else if (type == XNOR) returnVal = !(i1 ^ i2);
     }
+    output->setValue(returnVal);
     return returnVal;
 }

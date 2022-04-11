@@ -1,8 +1,7 @@
 #ifndef GATE_H
-
+#define GATE_H
 #include "Wire.h"
 
-#define GATE_H
 #define NOT 0
 #define AND 1
 #define OR 2
@@ -19,8 +18,7 @@ class Gate {
 public:
     Gate::Gate(int type, int delay, Wire* input1, Wire* input2, Wire* output): type(type), delay(delay), input1(input1), input2(input2), output(output){};
     int getDelay() const;
-    Wire* getInput1(int) const;
-    Wire* getInput2(int) const;
+    Wire* getInput(int) const;
     Wire* getOutput() const;
     int evaluate() const;
     
