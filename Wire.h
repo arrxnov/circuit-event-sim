@@ -2,10 +2,12 @@
 #define WIRE_H
 #define REMOVE 0
 #define ADD 1
-#include "Gate.h"
+#define HIGH 1
+#define LOW 0
+#define UNKNOWN 2
 #include <vector>
 #include <iostream>
-
+class Gate;
 class Wire
 {
     private:
