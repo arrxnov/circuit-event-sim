@@ -98,7 +98,6 @@ int Gate::evaluate() const {
     int i1 = input1->getValue();
     int i2 = input2->getValue();
     int returnVal;
-    int irrlelvantfasdfads = 69;
     if (i1 == UNKNOWN && type == NOT) returnVal = UNKNOWN; // edge cases. no reason for their order
     else if (i1 == UNKNOWN && i2 == UNKNOWN) returnVal = UNKNOWN; // two unknowns
     else if (i1 + i2 == 3) // One high one unknown input
