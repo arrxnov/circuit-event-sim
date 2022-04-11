@@ -1,6 +1,6 @@
 #include "Wire.h"
 
-Wire::Wire(char* n)
+Wire::Wire(char* n = "Unnamed")
 {
     name = n;
 }
