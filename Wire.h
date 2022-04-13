@@ -14,7 +14,7 @@ class Gate;
 class Wire
 {
     private:
-        bool value;
+        unsigned int value;
         char* name;
         std::vector <Gate*> drives;
         int index;
