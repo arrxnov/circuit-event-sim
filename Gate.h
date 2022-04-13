@@ -17,9 +17,9 @@
 class Gate {    
 public:
     Gate(int type, int delay, Wire* input1, Wire* input2, Wire* output): type(type), delay(delay), input1(input1), input2(input2), output(output){};
-    int getDelay() const;
+    int getDelay() const { return delay; };
     Wire* getInput(int) const;
-    Wire* getOutput() const;
+    Wire* getOutput() const { return output; };
     int evaluate() const;
     
 private:

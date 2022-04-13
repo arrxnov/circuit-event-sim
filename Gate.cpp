@@ -1,14 +1,10 @@
 #include "Gate.h"
 
-int Gate::getDelay() const { return delay; }
-
 Wire* Gate::getInput(int i) const 
 {
     if (i == 1) return input1;
     else return input2;
 }
-
-Wire* Gate::getOutput() const { return output; }
 
 int Gate::evaluate() const {
     int i1 = input1->getValue();
@@ -38,7 +34,7 @@ int Gate::evaluate() const {
     }
     else // Do bitwise math on i1 and i2 to save the code
     {
-        if (type == NOT) returnVal = !i1;
+        if (type == NOT) returnVal = !i1; // the stacked else ifs here actually take less space than a switch
         else if (type == AND) returnVal = i1 & i2;
         else if (type == OR) returnVal = i1 | i2;
         else if (type == XOR) returnVal = i1 ^ i2;
