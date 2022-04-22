@@ -1,5 +1,6 @@
 #include "Wire.h"
 #include <fstream>
+#include <queue>
 
 int main(int argc, char** argv)
 {   
@@ -24,5 +25,16 @@ int main(int argc, char** argv)
         return 2;
     }
     
+    // Load in circuit data and construct
+
+    queue<Wire*> events;
+
+    // Load in vector data and construct
+
+    while (!events.empty())
+    {
+        // Evaluate() events and add events appropriately. Pop front after done etc, etc.
+    }
+
     return 0;
 }
