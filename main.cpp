@@ -47,38 +47,41 @@ int main(int argc, char** argv)
         else
         {
             stringstream ss;
-            string type, delay;
-            int type_i, i1, i2, o;
+            string type_s, delay;
+            int type_i, delay_i, i1, i2, o;
             Wire* i1_wp;
             Wire* i2_wp;
             Wire* o_wp; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
-            ss >> type >> delay >> i1 >> i2 >> o;
-            if (type == "NOT")
+            ss >> type_s >> delay >> i1 >> i2 >> o;
+            if (type_s == "NOT") // Fill type_i for constructor
             {
                 o = i2; // edge case housekeeping
                                      type_i =  NOT;
             }
-            else if (type == "AND" ) type_i =  AND;
-            else if (type == "OR"  ) type_i =   OR;
-            else if (type == "XOR" ) type_i =  XOR;
-            else if (type == "NAND") type_i = NAND;
-            else if (type == "NOR" ) type_i =  NOR;
-            else if (type == "XNOR") type_i = XNOR;
-            // search for matching wires
-            for (int i = 0; i < wires.size(); i++)
+            else if (type_s == "AND" ) type_i =  AND;
+            else if (type_s == "OR"  ) type_i =   OR;
+            else if (type_s == "XOR" ) type_i =  XOR;
+            else if (type_s == "NAND") type_i = NAND;
+            else if (type_s == "NOR" ) type_i =  NOR;
+            else if (type_s == "XNOR") type_i = XNOR;
+        
+            ss << delay;
+            ss >> delay_i >> type_s; // reuse type to save like a whole byte of memory
+
+            for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
                 if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
                 if (wires.at(i)->getIndex() == i2) i2_wp = wires.at(i);
                 if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
             }
+
+            Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
         }
     }
-
-    // Load in vector data and construct
-
-    string type, name;
-    int time, val;
+    circuitFile.close();
+    
+    // Load in vector data
 
     while (!vectorFile.eof()) 
     {
@@ -86,10 +89,65 @@ int main(int argc, char** argv)
         events.push_back(data);
     }
 
-    while (true)
+    // Evaluate and print circuit behavior
+    auto it = events.begin();
+    int time = 0;
+    for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
+    while (it != events.end())
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
+        stringstream ss;
+        string io;
+        char* name;
+        int timeChanged, val;
+        ss << data;
+        ss >> io >> name >> timeChanged >> val;
+        // Add history as neccessary
+        for (int i = 0; i < wires.size(); i++)
+        {
+            int histLen = timeChanged - time;
+            wires.at(i)->appendHist(wires.at(i)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
+        }
+        // For all wires in wires<>, check for an event
+        for (int i = 0; i < wires.size(); i++)
+        {
+            Wire* wire = wires.at(i);
+            if (*(wire->getName()) == *name)
+            {
+                // Change status appropriately
+                wire->setValue(val);
+                // Evaluate affected gates and construct new events as necessary
+                vector<Gate*> drives = wire->getDrives();
+                for (int j = 0; j < drives.size(); j++)
+                {
+                    int newEvTime = time + drives.at(j)->getDelay();
+                    string event = "OUTPUT ";
+                    event.append(drives.at(j)->getOutput()->getName());
+                    event.append(" ");
+                    event.append(to_string(newEvTime));
+                    event.append(" ");
+                    event.append(to_string(drives.at(j)->evaluate()));
+                    // Step through events and add when appropriate
+                    int k = 0;
+                    for (auto babyIt = events.begin(); babyIt != events.end(); babyIt++, k++)
+                    {
+                        stringstream ss;
+                        string temp1, temp2;
+                        int oldEvTime, temp3;
+                        ss << events.at(k);
+                        ss >> temp1 >> temp2 >> oldEvTime >> temp3;
+                        if (oldEvTime > newEvTime)
+                        {
+                            events.insert(babyIt, event);
+                        }
+                    }
+                }
+            }
+        }
+        it++; // advance to next event
     }
 
+    // Do the print history thingy
+    
     return 0;
 }
