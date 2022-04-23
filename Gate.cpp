@@ -42,6 +42,6 @@ int Gate::evaluate() const {
         else if (type == NOR) returnVal = !(i1 | i2);
         else if (type == XNOR) returnVal = !(i1 ^ i2);
     }
-    output->setValue(returnVal);
+    // output->setValue(returnVal); // Let main function take care of this so gate delay can be handled there as well
     return returnVal;
 }
