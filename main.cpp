@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     
     // Load in circuit data and construct
 
-    queue<Wire*> events;
+    
 
     // Load in vector data and construct
 
