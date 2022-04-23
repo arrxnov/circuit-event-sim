@@ -16,7 +16,7 @@
 
 class Gate {    
 public:
-    Gate(char* data);
+    Gate::Gate(int t, int d, Wire* i1, Wire* i2, Wire* o) : type(t), delay(d), input1(i1), input2(i2), output(o) {};
     int getDelay() const { return delay; };
     Wire* getInput(int) const;
     Wire* getOutput() const { return output; };

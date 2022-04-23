@@ -46,10 +46,32 @@ int main(int argc, char** argv)
         }
         else
         {
-            char* data_c = new char[data.length() + 1]; // Hack solution to make the c_string param in Wire() work with a string 
-            strcpy(data_c, data.c_str());
-            Gate* newGate = new Gate(data_c); // construct new wire with data, constructor interprets data
-            gates.push_back(newGate);
+            stringstream ss;
+            string type, delay;
+            int type_i, i1, i2, o;
+            Wire* i1_wp;
+            Wire* i2_wp;
+            Wire* o_wp; // VS complained if these didn't have their own lines. Not sure why that makes a difference
+            ss << data;
+            ss >> type >> delay >> i1 >> i2 >> o;
+            if (type == "NOT")
+            {
+                o = i2; // edge case housekeeping
+                                     type_i =  NOT;
+            }
+            else if (type == "AND" ) type_i =  AND;
+            else if (type == "OR"  ) type_i =   OR;
+            else if (type == "XOR" ) type_i =  XOR;
+            else if (type == "NAND") type_i = NAND;
+            else if (type == "NOR" ) type_i =  NOR;
+            else if (type == "XNOR") type_i = XNOR;
+            // search for matching wires
+            for (int i = 0; i < wires.size(); i++)
+            {
+                if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
+                if (wires.at(i)->getIndex() == i2) i2_wp = wires.at(i);
+                if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
+            }
         }
     }
 
@@ -58,7 +80,7 @@ int main(int argc, char** argv)
     string type, name;
     int time, val;
 
-    while (!vectorFile.eof())
+    while (!vectorFile.eof()) 
     {
         vectorFile >> data;
         events.push_back(data);

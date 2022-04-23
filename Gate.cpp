@@ -1,20 +1,5 @@
 #include "Gate.h"
 
-Gate::Gate(char* data_c)
-{
-    std::string data = data_c;
-    if (data.find("NOT") != std::string::npos) type = NOT;
-    else if (data.find("AND") != std::string::npos) type = AND;
-    else if (data.find("OR") != std::string::npos) type = OR;
-    else if (data.find("XOR") != std::string::npos) type = XOR;
-    else if (data.find("NAND") != std::string::npos) type = NAND;
-    else if (data.find("NOR") != std::string::npos) type = NOR;
-    else if (data.find("XNOR") != std::string::npos) type = XNOR;
-
-    std::stringstream data_s;
-    data_s << data;
-}
-
 Wire* Gate::getInput(int i) const 
 {
     if (i == 1) return input1;
