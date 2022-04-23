@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 class Gate;
 
