@@ -2,7 +2,11 @@
 
 Wire::Wire(char* n = "Unnamed")
 {
-    name = n;
+    std::string data = n;
+    std::stringstream ss;
+    std::string type;
+    ss << n;
+    ss >> type >> name >> index;
 }
 
 void Wire::appendHist(int h, int time)
