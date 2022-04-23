@@ -1,5 +1,10 @@
 #include "Gate.h"
 
+Gate::Gate(char* data)
+{
+
+}
+
 Wire* Gate::getInput(int i) const 
 {
     if (i == 1) return input1;

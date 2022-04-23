@@ -25,13 +25,33 @@ int main(int argc, char** argv)
         return 2;
     }
     
+    vector<Gate*> gates;
+    vector<Wire*> wires;
+    string name;
+    string type;
+    string data;
+    
     // Load in circuit data and construct
 
-    
+    circuitFile >> type >> name;
+    while (!circuitFile.eof())
+    {
+           circuitFile >> data;
+           if (data.find("INPUT") != string::npos || data.find("OUTPUT") != string::npos)
+           {
+               char* data_c = new char[data.length() + 1]; // Hack solution to make the c_string param in Wire() work with a string 
+               strcpy(data_c, data.c_str());
+               Wire* newWire = new Wire(data_c); // construct new wire with data, constructor interprets data
+           }
+           else
+           {
+               
+           }
+    }
 
     // Load in vector data and construct
 
-    while (!events.empty())
+    while (true)
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
     }
