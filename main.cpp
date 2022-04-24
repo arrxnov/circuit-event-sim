@@ -37,18 +37,24 @@ int main(int argc, char** argv)
     while (!circuitFile.eof())
     {
         getline(circuitFile, data);
-        cout << data << endl;
+        cout << data << ", Length: " << data.length() << endl;
         if (data.find("INPUT") != string::npos || data.find("OUTPUT") != string::npos)
         {
             cout << "[+] Identified Wire" << endl;
-            char* data_c = new char[data.length() + 1]; // Hack solution to make the c_string param in Wire() work with a string 
+            char* data_c = new char[(int)(data.length() + 1)]; // Hack solution to make the c_string param in Wire() work with a string
+            cout << "[+] Finished making new pointer" << endl;
             strcpy(data_c, data.c_str());
+            cout << "[+] Finished copy: " << data_c << endl;
             Wire* newWire = new Wire(data_c); // construct new wire with data, constructor interprets data
             wires.push_back(newWire);
             cout << "[+] Added Wire ::: " << data << endl;
-            delete[] data_c;
+            // delete[] data_c;
+            // cout << "[+] Finished delete" << endl;
         }
-        else
+        else if (data.find("NOT") != string::npos || data.find("AND") != string::npos ||
+        data.find("OR") != string::npos || data.find("XOR") != string::npos || 
+        data.find("NAND") != string::npos || data.find("NOR") != string::npos ||
+        data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
             cout << "[+] Identified Gate" << endl;
             stringstream ss;
@@ -83,6 +89,7 @@ int main(int argc, char** argv)
 
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
         }
+        else {} // do nothing lol
     }
     circuitFile.close();
     
@@ -91,6 +98,7 @@ int main(int argc, char** argv)
     while (!vectorFile.eof()) 
     {
         getline(vectorFile, data);
+        if (data == "") continue; // protect against empty lines
         events.push_back(data);
         cout << "[+] Added event ::: " << data << endl;
     }

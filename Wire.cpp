@@ -1,14 +1,18 @@
 #include "Wire.h"
 
-Wire::Wire(char* n = "Unnamed")
+Wire::Wire(char* n)
 {
     std::string data = n;
     std::stringstream ss;
     std::string type;
+    char name_cnp; // Character not-pointer. Clearest syntax award goes to...
     ss << data;
-    ss >> type >> name >> index;
-    std::cout << "[WIRE CONSTR] Type: " << type << ", Name: " << name << ", Index: " << index << std::endl;
-}
+    ss >> std::skipws >> type >> name_cnp >> index;
+    name = new char;
+    *name = name_cnp;
+    name[1] = '\0'; // Fix output for strings
+    std::cout << "[WIRE CONSTR] Type: " << type << ", Name: " << name << ", Index: " << index << std::endl;  
+}   
 
 void Wire::appendHist(int h, int time)
 {
