@@ -135,7 +135,7 @@ int main(int argc, char** argv)
                 for (int j = 0; j < drives.size(); j++)
                 {
                     int newEvTime = time + drives.at(j)->getDelay();
-                    string event = "OUTPUT ";
+                    string event = "OUTPUT "; // Is this even relevant? Not in this implementation...
                     event.append(drives.at(j)->getOutput()->getName());
                     event.append(" ");
                     event.append(to_string(newEvTime));
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
                         int oldEvTime, temp3;
                         ss << events.at(k);
                         ss >> temp1 >> temp2 >> oldEvTime >> temp3;
-                        if (oldEvTime > newEvTime)
+                        if (oldEvTime > newEvTime) // I drew a picture to write this part. This means there is roughly a 20-30% HIGHER chance that it is in fact functional
                         {
                             events.insert(babyIt, event);
                             cout << " [+] Added event ::: " << event << endl;

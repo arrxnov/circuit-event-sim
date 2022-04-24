@@ -27,7 +27,7 @@ private:
     int delay;
     Wire* input1;
     Wire* input2;
-    Wire* output;   
+    Wire* output;
 };
 
 #endif
