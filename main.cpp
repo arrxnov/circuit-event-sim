@@ -4,7 +4,7 @@
 int main(int argc, char** argv)
 {   
     using namespace std;
-    if (argc != 2)
+    if (argc != 3)
     {
         cout << "[+] Usage: " << argv[0] << " <CIRCUIT FILE> <VECTOR FILE>" << endl;
         return 1;
@@ -33,19 +33,24 @@ int main(int argc, char** argv)
     
     // Load in circuit data and construct
 
-    circuitFile >> type >> name;
+    getline(circuitFile, type); // Grab irrelevant data from top
     while (!circuitFile.eof())
     {
-        circuitFile >> data;
+        getline(circuitFile, data);
+        cout << data << endl;
         if (data.find("INPUT") != string::npos || data.find("OUTPUT") != string::npos)
         {
+            cout << "[+] Identified Wire" << endl;
             char* data_c = new char[data.length() + 1]; // Hack solution to make the c_string param in Wire() work with a string 
             strcpy(data_c, data.c_str());
             Wire* newWire = new Wire(data_c); // construct new wire with data, constructor interprets data
             wires.push_back(newWire);
+            cout << "[+] Added Wire ::: " << data << endl;
+            delete[] data_c;
         }
         else
         {
+            cout << "[+] Identified Gate" << endl;
             stringstream ss;
             string type_s, delay;
             int type_i, delay_i, i1, i2, o;
@@ -57,7 +62,7 @@ int main(int argc, char** argv)
             if (type_s == "NOT") // Fill type_i for constructor
             {
                 o = i2; // edge case housekeeping
-                                     type_i =  NOT;
+                                       type_i =  NOT;
             }
             else if (type_s == "AND" ) type_i =  AND;
             else if (type_s == "OR"  ) type_i =   OR;
@@ -85,10 +90,11 @@ int main(int argc, char** argv)
 
     while (!vectorFile.eof()) 
     {
-        vectorFile >> data;
+        getline(vectorFile, data);
         events.push_back(data);
+        cout << "[+] Added event ::: " << data << endl;
     }
-
+    vectorFile.close();
     // Evaluate and print circuit behavior
     auto it = events.begin();
     int time = 0;
@@ -139,6 +145,7 @@ int main(int argc, char** argv)
                         if (oldEvTime > newEvTime)
                         {
                             events.insert(babyIt, event);
+                            cout << " [+] Added event ::: " << event << endl;
                         }
                     }
                 }
@@ -148,6 +155,11 @@ int main(int argc, char** argv)
     }
 
     // Do the print history thingy
-    
+
+    for (int i = 0; i < wires.size(); i++)
+    {
+        wires.at(i)->printHistory();
+        std::cout << std::endl;
+    }
     return 0;
 }

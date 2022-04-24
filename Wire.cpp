@@ -5,8 +5,9 @@ Wire::Wire(char* n = "Unnamed")
     std::string data = n;
     std::stringstream ss;
     std::string type;
-    ss << n;
+    ss << data;
     ss >> type >> name >> index;
+    std::cout << "[WIRE CONSTR] Type: " << type << ", Name: " << name << ", Index: " << index << std::endl;
 }
 
 void Wire::appendHist(int h, int time)
@@ -30,10 +31,12 @@ void Wire::editDrives(Gate* g, int e=ADD)
     }
 }
 
-void Wire::printHistory() const
+void Wire::printHistory() const // Does not implement endl!!
 {
     for (int i = 0; i < history.size(); i++)
     {
-        std::cout << history.at(i) << " ";
+        if (history.at(i) == HIGH) std::cout << "-";
+        else if (history.at(i) == LOW) std::cout << "_";
+        else if (history.at(i) == UNKNOWN) std::cout << "X";
     }
 }
