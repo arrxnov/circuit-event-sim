@@ -20,13 +20,17 @@ void Wire::appendHist(int h, int time)
     for (int i = 0; i < time; i++)
     {
         history.push_back(h);
-        // std::cout << "[GATEHIST] Added " << h << std::endl;
+        std::cout << "[GATEHIST] Added " << h << std::endl;
     }
 }
 
 void Wire::editDrives(Gate* g, int e=ADD)
 {
-    if (e == ADD) drives.push_back(g);
+    if (e == ADD)
+    {
+        drives.push_back(g);
+        std::cout << "[WIREDRV] Wire " << *name << " now drives a gate at " << g << std::endl; 
+    }
     else if (e == REMOVE)
     {
         for (int i = 0; i < drives.size(); i++)

@@ -86,6 +86,9 @@ int main(int argc, char** argv)
             }
 
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
+            cout << "[+] New gate at " << newGate << " with driving wire " << i1_wp->getName();
+            if (type_i != NOT) cout << " and " << i2_wp->getName();
+            cout << endl;
             i1_wp->editDrives(newGate, ADD);
             if (type_i != NOT) i2_wp->editDrives(newGate, ADD);
         }
@@ -106,7 +109,7 @@ int main(int argc, char** argv)
     // Evaluate and print circuit behavior
     int time = 0;
     for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
-    cout << "[+] Finished Xing all wires" << endl;
+    // cout << "[+] Finished Xing all wires" << endl;
     for (int i = 0; i < events.size(); i++)
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
@@ -117,46 +120,48 @@ int main(int argc, char** argv)
         char* name_p = nullptr;
         int timeChanged, val = 0;
         ss << events.at(i);
-        // cout << "[+] Finished streaming data: " << events.at(i) << endl;
+        cout << "[+] Finished streaming data: " << events.at(i) << endl;
         ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
         name_p = new char;
         *name_p = name_cnp;
         name_p[1] = '\0';
         // cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
         // Add history as neccessary
-        for (int i = 0; i < wires.size(); i++)
+        for (int j = 0; j< wires.size(); j++)
         {
             int histLen = timeChanged - time;
             // cout << "[+] Length of time: " << histLen << endl;
-            wires.at(i)->appendHist(wires.at(i)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
+            wires.at(j)->appendHist(wires.at(j)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
+            wires.at(j)->setValue(val);
+            cout << "[+] Appended history of len " << histLen << " of value " << val << " to " << wires.at(j)->getName() << endl;
         }
         // For all wires in wires<>, check for an event
-        for (int i = 0; i < wires.size(); i++)
+        for (int j = 0; j < wires.size(); j++)
         {
-            Wire* wire = wires.at(i);
+            Wire* wire = wires.at(j);
             if (*(wire->getName()) == *name_p)
             {
                 // Change status appropriately
                 wire->setValue(val);
                 // Evaluate affected gates and construct new events as necessary
                 vector<Gate*> drives = wire->getDrives();
-                for (int j = 0; j < drives.size(); j++)
+                for (int k = 0; k < drives.size(); k++)
                 {
-                    int newEvTime = time + drives.at(j)->getDelay();
+                    int newEvTime = time + drives.at(k)->getDelay();
                     string event = "OUTPUT "; // Is this even relevant? Not in this implementation...
-                    event.append(drives.at(j)->getOutput()->getName());
+                    event.append(drives.at(k)->getOutput()->getName());
                     event.append(" ");
                     event.append(to_string(newEvTime));
                     event.append(" ");
-                    event.append(to_string(drives.at(j)->evaluate()));
+                    event.append(to_string(drives.at(k)->evaluate()));
                     // Step through events and add when appropriate
-                    int k = 0;
-                    for (auto babyIt = events.begin(); babyIt != events.end(); babyIt++, k++)
+                    int l = 0;
+                    for (auto babyIt = events.begin(); babyIt != events.end(); babyIt++, l++)
                     {
                         stringstream ss;
                         string temp1, temp2;
                         int oldEvTime, temp3;
-                        ss << events.at(k);
+                        ss << events.at(l);
                         ss >> temp1 >> temp2 >> oldEvTime >> temp3;
                         if (oldEvTime > newEvTime) // I drew a picture to write this part. This means there is roughly a 20-30% HIGHER chance that it is in fact functional
                         {
