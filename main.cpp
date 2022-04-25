@@ -55,14 +55,14 @@ int main(int argc, char** argv)
         data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
             cout << "[+] Identified Gate" << endl;
-            cout << data << endl;
             stringstream ss;
-            string type_s, delay;
+            string type_s, delay, junk;
             int type_i, delay_i, i1, i2, o;
             Wire* i1_wp = nullptr;
             Wire* i2_wp = nullptr;
             Wire* o_wp = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
+            cout << data << endl;
             ss >> std::skipws >> type_s >> delay >> i1 >> i2 >> o;
             if (type_s == "NOT") // Fill type_i for constructor
             {
@@ -75,10 +75,10 @@ int main(int argc, char** argv)
             else if (type_s == "NAND") type_i = NAND;
             else if (type_s == "NOR" ) type_i =  NOR;
             else if (type_s == "XNOR") type_i = XNOR;
-        
-            ss << delay;
-            ss >> delay_i >> type_s; // reuse type to save like a whole byte of memory
 
+            ss.str("");
+            ss << delay;
+            // Store the bit before ns in delay_i to be used by the rest of the logic
             for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
                 if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
