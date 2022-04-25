@@ -40,9 +40,9 @@ int main(int argc, char** argv)
         {
             cout << "[+] Identified Wire" << endl;
             char* data_c = new char[(int)(data.length() + 1)]; // Hack solution to make the c_string param in Wire() work with a string
-            cout << "[+] Finished making new pointer" << endl;
+            // cout << "[+] Finished making new pointer" << endl;
             strcpy(data_c, data.c_str());
-            cout << "[+] Finished copy: " << data_c << endl;
+            // cout << "[+] Finished copy: " << data_c << endl;
             Wire* newWire = new Wire(data_c); // construct new wire with data, constructor interprets data
             wires.push_back(newWire);
             cout << "[+] Added Wire ::: " << data << endl;
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     circuitFile.close();
     
     // Load in vector data
-
+    getline(vectorFile, data); // Remove first line of datafile
     while (!vectorFile.eof()) 
     {
         getline(vectorFile, data);
@@ -110,24 +110,24 @@ int main(int argc, char** argv)
     for (int i = 0; i < events.size(); i++)
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
-        cout << "[+] Starting loop " << i << endl;
+        // cout << "[+] Starting loop " << i << endl;
         stringstream ss;
         string io;
         char name_cnp;
         char* name_p = nullptr;
         int timeChanged, val = 0;
         ss << events.at(i);
-        cout << "[+] Finished streaming data: " << events.at(i) << endl;
+        // cout << "[+] Finished streaming data: " << events.at(i) << endl;
         ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
         name_p = new char;
         *name_p = name_cnp;
         name_p[1] = '\0';
-        cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
+        // cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
         // Add history as neccessary
         for (int i = 0; i < wires.size(); i++)
         {
             int histLen = timeChanged - time;
-            cout << "[+] Length of time: " << histLen << endl;
+            // cout << "[+] Length of time: " << histLen << endl;
             wires.at(i)->appendHist(wires.at(i)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
         }
         // For all wires in wires<>, check for an event
