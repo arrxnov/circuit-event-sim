@@ -55,6 +55,7 @@ int main(int argc, char** argv)
         data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
             cout << "[+] Identified Gate" << endl;
+            cout << data << endl;
             stringstream ss;
             string type_s, delay;
             int type_i, delay_i, i1, i2, o;
@@ -62,7 +63,7 @@ int main(int argc, char** argv)
             Wire* i2_wp = nullptr;
             Wire* o_wp = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
-            ss >> type_s >> delay >> i1 >> i2 >> o;
+            ss >> std::skipws >> type_s >> delay >> i1 >> i2 >> o;
             if (type_s == "NOT") // Fill type_i for constructor
             {
                 o = i2; // edge case housekeeping
@@ -87,8 +88,11 @@ int main(int argc, char** argv)
 
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
             cout << "[+] New gate at " << newGate << " with driving wire " << i1_wp->getName();
+            
             if (type_i != NOT) cout << " and " << i2_wp->getName();
             cout << endl;
+            cout << "::: Delay: " << delay_i << endl;
+            
             i1_wp->editDrives(newGate, ADD);
             if (type_i != NOT) i2_wp->editDrives(newGate, ADD);
         }
@@ -148,6 +152,7 @@ int main(int argc, char** argv)
                 for (int k = 0; k < drives.size(); k++)
                 {
                     int newEvTime = time + drives.at(k)->getDelay();
+                    cout << "[+] Current time: " << time << ", New Event Time: " << newEvTime << endl;
                     string event = "OUTPUT "; // Is this even relevant? Not in this implementation...
                     event.append(drives.at(k)->getOutput()->getName());
                     event.append(" ");
