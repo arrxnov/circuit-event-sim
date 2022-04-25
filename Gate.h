@@ -16,11 +16,14 @@
 
 class Gate {    
 public:
-    Gate::Gate(int t, int d, Wire* i1, Wire* i2, Wire* o) : type(t), delay(d), input1(i1), input2(i2), output(o) {};
+    Gate::Gate(int t, int d, Wire* i1, Wire* i2, Wire* o) : type(t), delay(d), input1(i1), input2(i2), output(o) 
+    {
+        std::cout << "[GATECONTSTR] New Gate of type " << type << " wire 1: " << input1->getName() << " wire 2: " << input2->getName() << std::endl;
+    };
     int getDelay() const { return delay; };
     Wire* getInput(int) const;
     Wire* getOutput() const { return output; };
-    int evaluate() const;
+    unsigned int evaluate() const;
     
 private:
     unsigned int type;

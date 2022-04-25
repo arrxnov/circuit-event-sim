@@ -1,6 +1,6 @@
 #include "Gate.h"
 #include <fstream>
-
+typedef unsigned int ui;
 int main(int argc, char** argv)
 {   
     using namespace std;
@@ -38,23 +38,16 @@ int main(int argc, char** argv)
         getline(circuitFile, data);
         if (data.find("INPUT") != string::npos || data.find("OUTPUT") != string::npos)
         {
-            cout << "[+] Identified Wire" << endl;
             char* data_c = new char[(int)(data.length() + 1)]; // Hack solution to make the c_string param in Wire() work with a string
-            // cout << "[+] Finished making new pointer" << endl;
             strcpy(data_c, data.c_str());
-            // cout << "[+] Finished copy: " << data_c << endl;
             Wire* newWire = new Wire(data_c); // construct new wire with data, constructor interprets data
             wires.push_back(newWire);
-            cout << "[+] Added Wire ::: " << data << endl;
-            // delete[] data_c;
-            // cout << "[+] Finished delete" << endl;
         }
         else if (data.find("NOT") != string::npos || data.find("AND") != string::npos ||
         data.find("OR") != string::npos || data.find("XOR") != string::npos || 
         data.find("NAND") != string::npos || data.find("NOR") != string::npos ||
         data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
-            cout << "[+] Identified Gate" << endl;
             stringstream ss;
             string type_s, delay, junk;
             int type_i, delay_i, i1, i2, o;
@@ -62,7 +55,6 @@ int main(int argc, char** argv)
             Wire* i2_wp = nullptr;
             Wire* o_wp = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
-            cout << data << endl;
             ss >> std::skipws >> type_s >> delay >> i1 >> i2 >> o;
             if (type_s == "NOT") // Fill type_i for constructor
             {
@@ -110,12 +102,7 @@ int main(int argc, char** argv)
                 if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
             }
 
-            Gate* newGate = new Gate(type_i, 3, i1_wp, i2_wp, o_wp); // DELAY FORCED TO 3 CHANGEME LATER
-            cout << "[+] New gate at " << newGate << " with driving wire " << i1_wp->getName();
-
-            if (type_i != NOT) cout << " and " << i2_wp->getName();
-            cout << endl;
-            cout << "::: Delay: " << delay_i << endl;
+            Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
             
             i1_wp->editDrives(newGate, ADD);
             if (type_i != NOT) i2_wp->editDrives(newGate, ADD);
@@ -138,29 +125,26 @@ int main(int argc, char** argv)
     int time = 0;
     for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
     // cout << "[+] Finished Xing all wires" << endl;
-    for (int i = 0; i < events.size(); i++)
+    int size = events.size();
+    for (int i = 0; i < size; i++)
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
-        // cout << "[+] Starting loop " << i << endl;
         stringstream ss;
         string io;
         char name_cnp;
         char* name_p = nullptr;
         int timeChanged, val = 0;
         ss << events.at(i);
-        cout << "[+] Finished streaming data: " << events.at(i) << endl;
         ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
+        cout << io << name_cnp << timeChanged << val << endl;
         name_p = new char;
         *name_p = name_cnp;
         name_p[1] = '\0';
-        cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
         // Add history as neccessary
         for (int j = 0; j< wires.size(); j++)
         {
             int histLen = timeChanged - time;
-            // cout << "[+] Length of time: " << histLen << endl;
             wires.at(j)->appendHist(wires.at(j)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wirestim
-            cout << "[+] Appended history of len " << histLen << " of value " << val << " to " << wires.at(j)->getName() << endl;
         }
         // For all wires in wires<>, check for an event
         for (int j = 0; j < wires.size(); j++)
@@ -169,16 +153,15 @@ int main(int argc, char** argv)
             if (*(wire->getName()) == *name_p)
             {
                 // Change status appropriately
-                wire->setValue(val);
+                wire->setValue(ui(val)); // Set value first
                 // Evaluate affected gates and construct new events as necessary
-                vector<Gate*> drives = wire->getDrives();
+                vector<Gate*> drives = wire->getDrives(); //  Check for affected driven gates
                 for (int k = 0; k < drives.size(); k++)
                 {
                     int newEvTime = time + drives.at(k)->getDelay();
                     bool added = false;
-                    // cout << "[+] Current time: " << time << ", New Event Time: " << newEvTime << endl;
                     string event = "OUTPUT "; // Is this even relevant? Not in this implementation...
-                    event.append(drives.at(k)->getOutput()->getName());
+                    event.append(drives.at(k)->getOutput()->getName()); // Get output wire and set value
                     event.append(" ");
                     event.append(to_string(newEvTime));
                     event.append(" ");
@@ -195,11 +178,12 @@ int main(int argc, char** argv)
                         if (oldEvTime > newEvTime) // I drew a picture to write this part. This means there is roughly a 20-30% HIGHER chance that it is in fact functional
                         {
                             events.insert(babyIt, event);
+                            added = true;
+                            break;
                         }
                     }
                     if (!added) 
                     {
-                        cout << "[+] Attempting to insert at end" << endl;
                         events.insert(events.end(), event);
                     }
                     cout << "[+] Added event ::: " << event << endl;
@@ -207,6 +191,7 @@ int main(int argc, char** argv)
                 }
             }
         }
+        size = events.size();
     }
 
     for (int i = 0; i < events.size(); i++)
@@ -218,10 +203,11 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < wires.size(); i++)
     {
+        wires.at(i)->appendHist(wires.at(i)->getValue(), 1);
         wires.at(i)->printHistory();
         std::cout << std::endl;
-        
     }
-    std::cout << "[ Time >> 0    5    10   15   20   25" << std::endl;
+    cout << "[ Time >> 0    5    10   15   20   25" << endl;
+    cout << "Unsigned test" << (1&1) << endl;
     return 0;
 }
