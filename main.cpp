@@ -79,6 +79,30 @@ int main(int argc, char** argv)
             ss.str("");
             ss << delay;
             // Store the bit before ns in delay_i to be used by the rest of the logic
+            // get string from delay, store the int before ns in delay_i
+            char values[3];
+            int i;
+            int counter = 0;
+            for(i = 0; i < 3; i++)
+            {
+                if(!isalpha(delay[i]))
+                {
+                    values[i] = delay[i];
+                }
+                else break;
+                counter++;
+            }
+
+            if(counter == 1)
+            {
+                values[1] = '\0';
+            }
+            else if(counter == 2)
+            {
+                values[2] = '\0';
+            }
+            delay_i = stoi(values);
+            
             for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
                 if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
