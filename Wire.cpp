@@ -16,7 +16,12 @@ Wire::Wire(char* n)
 
 void Wire::appendHist(int h, int time)
 {
-    for (int i = 0; i < time; i++) history.push_back(h);
+    std::cout << "[GATEHIST] History length: " << time << std::endl;
+    for (int i = 0; i < time; i++)
+    {
+        history.push_back(h);
+        std::cout << "[GATEHIST] Added " << h << std::endl;
+    }
 }
 
 void Wire::editDrives(Gate* g, int e=ADD)

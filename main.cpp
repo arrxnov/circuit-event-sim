@@ -27,7 +27,6 @@ int main(int argc, char** argv)
     vector<Gate*> gates;
     vector<Wire*> wires;
     vector<string> events;
-    string name;
     string type;
     string data;
     
@@ -37,7 +36,6 @@ int main(int argc, char** argv)
     while (!circuitFile.eof())
     {
         getline(circuitFile, data);
-        cout << data << ", Length: " << data.length() << endl;
         if (data.find("INPUT") != string::npos || data.find("OUTPUT") != string::npos)
         {
             cout << "[+] Identified Wire" << endl;
@@ -60,9 +58,9 @@ int main(int argc, char** argv)
             stringstream ss;
             string type_s, delay;
             int type_i, delay_i, i1, i2, o;
-            Wire* i1_wp;
-            Wire* i2_wp;
-            Wire* o_wp; // VS complained if these didn't have their own lines. Not sure why that makes a difference
+            Wire* i1_wp = nullptr;
+            Wire* i2_wp = nullptr;
+            Wire* o_wp = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
             ss >> type_s >> delay >> i1 >> i2 >> o;
             if (type_s == "NOT") // Fill type_i for constructor
@@ -88,6 +86,8 @@ int main(int argc, char** argv)
             }
 
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
+            i1_wp->editDrives(newGate, ADD);
+            if (type_i != NOT) i2_wp->editDrives(newGate, ADD);
         }
         else {} // do nothing lol
     }
@@ -104,29 +104,37 @@ int main(int argc, char** argv)
     }
     vectorFile.close();
     // Evaluate and print circuit behavior
-    auto it = events.begin();
     int time = 0;
     for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
-    while (it != events.end())
+    cout << "[+] Finished Xing all wires" << endl;
+    for (int i = 0; i < events.size(); i++)
     {
         // Evaluate() events and add events appropriately. Pop front after done etc, etc.
+        cout << "[+] Starting loop " << i << endl;
         stringstream ss;
         string io;
-        char* name;
-        int timeChanged, val;
-        ss << data;
-        ss >> io >> name >> timeChanged >> val;
+        char name_cnp;
+        char* name_p = nullptr;
+        int timeChanged, val = 0;
+        ss << events.at(i);
+        cout << "[+] Finished streaming data: " << events.at(i) << endl;
+        ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
+        name_p = new char;
+        *name_p = name_cnp;
+        name_p[1] = '\0';
+        cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
         // Add history as neccessary
         for (int i = 0; i < wires.size(); i++)
         {
             int histLen = timeChanged - time;
+            cout << "[+] Length of time: " << histLen << endl;
             wires.at(i)->appendHist(wires.at(i)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
         }
         // For all wires in wires<>, check for an event
         for (int i = 0; i < wires.size(); i++)
         {
             Wire* wire = wires.at(i);
-            if (*(wire->getName()) == *name)
+            if (*(wire->getName()) == *name_p)
             {
                 // Change status appropriately
                 wire->setValue(val);
@@ -153,13 +161,12 @@ int main(int argc, char** argv)
                         if (oldEvTime > newEvTime) // I drew a picture to write this part. This means there is roughly a 20-30% HIGHER chance that it is in fact functional
                         {
                             events.insert(babyIt, event);
-                            cout << " [+] Added event ::: " << event << endl;
+                            cout << "[+] Added event ::: " << event << endl;
                         }
                     }
                 }
             }
         }
-        it++; // advance to next event
     }
 
     // Do the print history thingy
