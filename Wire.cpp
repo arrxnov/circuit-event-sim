@@ -20,7 +20,7 @@ void Wire::appendHist(int h, int time)
     for (int i = 0; i < time; i++)
     {
         history.push_back(h);
-        std::cout << "[GATEHIST] Added " << h << std::endl;
+        // std::cout << "[GATEHIST] Added " << h << std::endl;
     }
 }
 
@@ -44,7 +44,7 @@ void Wire::editDrives(Gate* g, int e=ADD)
     }
 }
 
-void Wire::printHistory() const // Does not implement endl!!
+void Wire::printHistory() const
 {
     std::cout << "[Wire: " << *name << "] ";
     

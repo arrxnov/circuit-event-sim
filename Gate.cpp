@@ -7,6 +7,7 @@ Wire* Gate::getInput(int i) const
 }
 
 int Gate::evaluate() const {
+    std::cout << "[GTEVL] Evaluating gate at " << this << std::endl;
     int i1 = input1->getValue();
     int i2 = input2->getValue();
     int returnVal;
@@ -43,5 +44,6 @@ int Gate::evaluate() const {
         else if (type == XNOR) returnVal = !(i1 ^ i2);
     }
     // output->setValue(returnVal); // Let main function take care of this so gate delay can be handled there as well
+    std::cout << "[GTEVAL] Finished evaluating" << std::endl;
     return returnVal;
 }

@@ -86,9 +86,9 @@ int main(int argc, char** argv)
                 if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
             }
 
-            Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
+            Gate* newGate = new Gate(type_i, 3, i1_wp, i2_wp, o_wp); // DELAY FORCED TO 3 CHANGEME LATER
             cout << "[+] New gate at " << newGate << " with driving wire " << i1_wp->getName();
-            
+
             if (type_i != NOT) cout << " and " << i2_wp->getName();
             cout << endl;
             cout << "::: Delay: " << delay_i << endl;
@@ -129,14 +129,13 @@ int main(int argc, char** argv)
         name_p = new char;
         *name_p = name_cnp;
         name_p[1] = '\0';
-        // cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
+        cout << "[+] IO: " << io << ", Name: " << name_p << ", timeChanged: " << timeChanged << ", Value: " << val << endl; 
         // Add history as neccessary
         for (int j = 0; j< wires.size(); j++)
         {
             int histLen = timeChanged - time;
             // cout << "[+] Length of time: " << histLen << endl;
-            wires.at(j)->appendHist(wires.at(j)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wires
-            wires.at(j)->setValue(val);
+            wires.at(j)->appendHist(wires.at(j)->getValue(), histLen); // Rewrite history to serve my purposes... Append history of proper length to wirestim
             cout << "[+] Appended history of len " << histLen << " of value " << val << " to " << wires.at(j)->getName() << endl;
         }
         // For all wires in wires<>, check for an event
@@ -152,7 +151,8 @@ int main(int argc, char** argv)
                 for (int k = 0; k < drives.size(); k++)
                 {
                     int newEvTime = time + drives.at(k)->getDelay();
-                    cout << "[+] Current time: " << time << ", New Event Time: " << newEvTime << endl;
+                    bool added = false;
+                    // cout << "[+] Current time: " << time << ", New Event Time: " << newEvTime << endl;
                     string event = "OUTPUT "; // Is this even relevant? Not in this implementation...
                     event.append(drives.at(k)->getOutput()->getName());
                     event.append(" ");
@@ -171,20 +171,33 @@ int main(int argc, char** argv)
                         if (oldEvTime > newEvTime) // I drew a picture to write this part. This means there is roughly a 20-30% HIGHER chance that it is in fact functional
                         {
                             events.insert(babyIt, event);
-                            cout << "[+] Added event ::: " << event << endl;
                         }
                     }
+                    if (!added) 
+                    {
+                        cout << "[+] Attempting to insert at end" << endl;
+                        events.insert(events.end(), event);
+                    }
+                    cout << "[+] Added event ::: " << event << endl;
+                    time = timeChanged;
                 }
             }
         }
     }
 
+    for (int i = 0; i < events.size(); i++)
+    {
+        cout << events.at(i) << endl;
+    }
+    
     // Do the print history thingy
 
     for (int i = 0; i < wires.size(); i++)
     {
         wires.at(i)->printHistory();
         std::cout << std::endl;
+        
     }
+    std::cout << "[ Time >> 0    5    10   15   20   25" << std::endl;
     return 0;
 }
