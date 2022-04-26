@@ -1,6 +1,6 @@
 #include "Gate.h"
 #include <fstream>
-typedef unsigned int ui;
+typedef unsigned int ui; // unsigned i realize in retrospect doesn't actually make a difference, but it is a working solution atm, so I'm not moving them
 int main(int argc, char** argv)
 {   
     using namespace std;
@@ -54,12 +54,12 @@ int main(int argc, char** argv)
             int type_i, delay_i, i1, i2, o;
             Wire* i1_wp = nullptr;
             Wire* i2_wp = nullptr;
-            Wire* o_wp = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
+            Wire* o_wp  = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
             ss >> std::skipws >> type_s >> delay >> i1 >> i2 >> o;
             if (type_s == "NOT") // Fill type_i for constructor
             {
-                o = i2; // edge case housekeeping
+                                       o = i2; // edge case housekeeping
                                        type_i =  NOT;
             }
             else if (type_s == "AND" ) type_i =  AND;
@@ -69,8 +69,6 @@ int main(int argc, char** argv)
             else if (type_s == "NOR" ) type_i =  NOR;
             else if (type_s == "XNOR") type_i = XNOR;
 
-            ss.str("");
-            ss << delay;
             // Store the bit before ns in delay_i to be used by the rest of the logic
             // get string from delay, store the int before ns in delay_i
             char values[3];
@@ -78,21 +76,27 @@ int main(int argc, char** argv)
             int counter = 0;
             for(i = 0; i < 3; i++)
             {
-                if(!isalpha(delay[i]))
-                {
-                    values[i] = delay[i];
-                }
+                if(!isalpha(delay[i])) values[i] = delay[i];
                 else break;
                 counter++;
             }
-            
+            if(counter == 1) values[1] = '\0';
+            else if(counter == 2) values[2] = '\0';
+            delay_i = stoi(values);
 
             // Test for uninputted wires connecting gates
             bool inWires1, inWires2, inWiresO = false;
             for (int j = 0; j < wires.size(); j++) if (i1 == wires.at(j)->getIndex()) inWires1 = true;
             for (int j = 0; j < wires.size(); j++) if (i2 == wires.at(j)->getIndex()) inWires2 = true;
             for (int j = 0; j < wires.size(); j++) if (o == wires.at(j)->getIndex()) inWiresO = true;
-            data = "OUTPUT F "; 
+            data = "OUTPUT ";
+            char newName = 'A';
+            for (int i = 0; i < wires.size(); i++) if (*(wires.at(i)->getName()) == newName) {
+                i = 0;
+                newName++;
+            }
+            data += newName;
+            data += " ";
             if (!inWires1)
             {
                 data += to_string(i1);
@@ -121,40 +125,18 @@ int main(int argc, char** argv)
                 cout << data << endl;
             }
             cout << "[+] All wires accounted for" << endl;
-            if(counter == 1)
-            {
-                values[1] = '\0';
-            }
-            else if(counter == 2)
-            {
-                values[2] = '\0';
-            }
-            delay_i = stoi(values);
+            
             
             for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
-                if (wires.at(i)->getIndex() == i1) 
-                {
-                    i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
-                }
-                if (wires.at(i)->getIndex() == i2)
-                {
-                    i2_wp = wires.at(i);
-                } 
-                if (wires.at(i)->getIndex() == o )
-                {
-                    o_wp  = wires.at(i);
-                } 
+                if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i);
+                if (wires.at(i)->getIndex() == i2) i2_wp = wires.at(i); 
+                if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
             }
-
-            cout << "[+] : Output index: " << o << " , Input2 index: " << i2 << endl;
-            cout << "[+] Making new gate with wires " << i1_wp << " " << i2_wp << " " << o_wp << endl;
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
-            
             i1_wp->editDrives(newGate, ADD);
             if (type_i != NOT) i2_wp->editDrives(newGate, ADD);
         }
-        else {} // do nothing lol
     }
     circuitFile.close();
     
@@ -165,17 +147,15 @@ int main(int argc, char** argv)
         getline(vectorFile, data);
         if (data == "") continue; // protect against empty lines
         events.push_back(data);
-        cout << "[+] Added event ::: " << data << endl;
     }
     vectorFile.close();
     // Evaluate and print circuit behavior
     int time = 0;
     for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
-    // cout << "[+] Finished Xing all wires" << endl;
     int size = events.size();
     for (int i = 0; i < size; i++)
     {
-        // Evaluate() events and add events appropriately. Pop front after done etc, etc.
+        // Evaluate() events and add events appropriately
         stringstream ss;
         string io;
         char name_cnp;
@@ -183,10 +163,9 @@ int main(int argc, char** argv)
         int timeChanged, val = 0;
         ss << events.at(i);
         ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
-        cout << io << name_cnp << timeChanged << val << endl;
         name_p = new char;
         *name_p = name_cnp;
-        name_p[1] = '\0';
+        name_p[1] = '\0'; // string handling
         // Add history as neccessary
         for (int j = 0; j< wires.size(); j++)
         {
@@ -229,22 +208,13 @@ int main(int argc, char** argv)
                             break;
                         }
                     }
-                    if (!added) 
-                    {
-                        events.insert(events.end(), event);
-                    }
-                    cout << "[+] Added event ::: " << event << endl;
+                    if (!added) events.insert(events.end(), event);
                     time = timeChanged;
                 }
             }
         }
         size = events.size();
         if (time > 90) break;
-    }
-
-    for (int i = 0; i < events.size(); i++)
-    {
-        cout << events.at(i) << endl;
     }
     
     // Do the print history thingy
@@ -255,7 +225,6 @@ int main(int argc, char** argv)
         wires.at(i)->printHistory();
         std::cout << std::endl;
     }
-    cout << "[ Time >> 0    5    10   15   20   25" << endl;
-    cout << "Unsigned test" << (1&1) << endl;
+    cout << "[ Time >>>> 0    5    10   15   20   25" << endl;
     return 0;
 }

@@ -24,11 +24,7 @@ class Wire
         std::vector<int> history;
     public:
         Wire(char* n);
-        void setValue(unsigned int v) 
-        { 
-            value = v;
-            std::cout << "[WIREVAL] Set wire " << name << " to " << value << std::endl;
-        };
+        void setValue(unsigned int v) { value = v; };
         void appendHist(int h, int time);
         void editDrives(Gate* g, int e);
         unsigned int getValue() const { return value; };
