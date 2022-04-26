@@ -11,7 +11,7 @@ Wire::Wire(char* n)
     name = new char;
     *name = name_cnp;
     name[1] = '\0'; // Fix output for strings
-    // std::cout << "[WIRE CONSTR] Type: " << type << ", Name: " << name << ", Index: " << index << std::endl;  
+    std::cout << "[WIRE CONSTR] Type: " << type << ", Name: " << name << ", Index: " << index << ", Addr: " << this << std::endl;  
 }   
 
 void Wire::appendHist(int h, int time)
@@ -46,7 +46,7 @@ void Wire::editDrives(Gate* g, int e=ADD)
 
 void Wire::printHistory() const
 {
-    std::cout << "[Wire: " << *name << "] ";
+    std::cout << "[Wire: " << *name << "::" << index << "] ";
     
     for (int i = 0; i < history.size(); i++)
     {

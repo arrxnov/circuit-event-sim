@@ -48,6 +48,7 @@ int main(int argc, char** argv)
         data.find("NAND") != string::npos || data.find("NOR") != string::npos ||
         data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
+            cout << "[+] Found gate..." << endl;
             stringstream ss;
             string type_s, delay, junk;
             int type_i, delay_i, i1, i2, o;
@@ -84,7 +85,42 @@ int main(int argc, char** argv)
                 else break;
                 counter++;
             }
+            
 
+            // Test for uninputted wires connecting gates
+            bool inWires1, inWires2, inWiresO = false;
+            for (int j = 0; j < wires.size(); j++) if (i1 == wires.at(j)->getIndex()) inWires1 = true;
+            for (int j = 0; j < wires.size(); j++) if (i2 == wires.at(j)->getIndex()) inWires2 = true;
+            for (int j = 0; j < wires.size(); j++) if (o == wires.at(j)->getIndex()) inWiresO = true;
+            data = "OUTPUT F "; 
+            if (!inWires1)
+            {
+                data += to_string(i1);
+                char* data_c = new char[(int)(data.length() + 1)];
+                strcpy(data_c, data.c_str());
+                Wire* newWire = new Wire(data_c);
+                wires.push_back(newWire);
+                cout << data << endl;
+            }
+            if (!inWires2)
+            {
+                data += to_string(i2);
+                char* data_c = new char[(int)(data.length() + 1)];
+                strcpy(data_c, data.c_str());
+                Wire* newWire = new Wire(data_c);
+                wires.push_back(newWire);
+                cout << data << endl;
+            }
+            if (!inWiresO)
+            {
+                data += to_string(o);
+                char* data_c = new char[(int)(data.length() + 1)];
+                strcpy(data_c, data.c_str());
+                Wire* newWire = new Wire(data_c);
+                wires.push_back(newWire);
+                cout << data << endl;
+            }
+            cout << "[+] All wires accounted for" << endl;
             if(counter == 1)
             {
                 values[1] = '\0';
@@ -97,11 +133,22 @@ int main(int argc, char** argv)
             
             for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
-                if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
-                if (wires.at(i)->getIndex() == i2) i2_wp = wires.at(i);
-                if (wires.at(i)->getIndex() == o ) o_wp  = wires.at(i);
+                if (wires.at(i)->getIndex() == i1) 
+                {
+                    i1_wp = wires.at(i); // all if statements without else to protect against improper handling of gates with both inputs tied to the same wire
+                }
+                if (wires.at(i)->getIndex() == i2)
+                {
+                    i2_wp = wires.at(i);
+                } 
+                if (wires.at(i)->getIndex() == o )
+                {
+                    o_wp  = wires.at(i);
+                } 
             }
 
+            cout << "[+] : Output index: " << o << " , Input2 index: " << i2 << endl;
+            cout << "[+] Making new gate with wires " << i1_wp << " " << i2_wp << " " << o_wp << endl;
             Gate* newGate = new Gate(type_i, delay_i, i1_wp, i2_wp, o_wp);
             
             i1_wp->editDrives(newGate, ADD);
@@ -192,6 +239,7 @@ int main(int argc, char** argv)
             }
         }
         size = events.size();
+        if (time > 90) break;
     }
 
     for (int i = 0; i < events.size(); i++)
