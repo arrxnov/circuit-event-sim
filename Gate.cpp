@@ -25,13 +25,13 @@ unsigned int Gate::evaluate() const {
     }
     else // Do bitwise math on i1 and i2 to save the code
     {
-        if      (type ==  NOT) returnVal = unsigned int(!i1); // the stacked else ifs here actually take less space than a switch
-        else if (type ==  AND) returnVal = unsigned int(i1 & i2);
-        else if (type ==   OR) returnVal = unsigned int(i1 | i2);
-        else if (type ==  XOR) returnVal = unsigned int(i1 ^ i2);
-        else if (type == NAND) returnVal = unsigned int(!(i1 & i2));
-        else if (type ==  NOR) returnVal = unsigned int(!(i1 | i2));
-        else if (type == XNOR) returnVal = unsigned int(!(i1 ^ i2));
+        if      (type ==  NOT) returnVal = (unsigned int)(!i1); // the stacked else ifs here actually take less space than a switch
+        else if (type ==  AND) returnVal = (unsigned int)(i1 & i2);
+        else if (type ==   OR) returnVal = (unsigned int)(i1 | i2);
+        else if (type ==  XOR) returnVal = (unsigned int)(i1 ^ i2);
+        else if (type == NAND) returnVal = (unsigned int)(!(i1 & i2));
+        else if (type ==  NOR) returnVal = (unsigned int)(!(i1 | i2));
+        else if (type == XNOR) returnVal = (unsigned int)(!(i1 ^ i2));
     }
     return returnVal;
 }

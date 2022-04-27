@@ -146,17 +146,17 @@ int main(int argc, char** argv)
     }
     vectorFile.close();
     // Evaluate and print circuit behavior
-    int time = 0;
+    int time = 0; // Keeps track of ns timestamp for execution
     for (int i = 0; i < wires.size(); i++) wires.at(i)->setValue(UNKNOWN); // Make sure all wires start unknown, 0-time wires will be handled by the regular logic just fine
-    int size = events.size();
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < events.size(); i++)
     {
         // Evaluate() events and add events appropriately
-        stringstream ss;
-        string io;
-        char name_cnp;
-        char* name_p = nullptr;
-        int timeChanged, val = 0;
+        // Ex.: OUTPUT 4 1 1 :: Sets wire 4 high at time 1
+        stringstream ss; // stream for parsing
+        string io; // string for useless leading data
+        char name_cnp; // read in a char
+        char* name_p = nullptr; // and convert to a pointer
+        int timeChanged, val = 0; 
         ss << events.at(i);
         ss >> std::skipws >> io >> name_cnp >> timeChanged >> val;
         name_p = new char;
@@ -209,7 +209,7 @@ int main(int argc, char** argv)
                 }
             }
         }
-        size = events.size();
+
         if (time > 90) break;
     }
     

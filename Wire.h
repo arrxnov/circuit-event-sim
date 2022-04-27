@@ -2,9 +2,9 @@
 #define WIRE_H
 #define REMOVE 0
 #define ADD 1
-#define HIGH unsigned int(1)
-#define LOW unsigned int(0)
-#define UNKNOWN unsigned int(2)
+#define HIGH 1
+#define LOW 0
+#define UNKNOWN 2
 
 #include <vector>
 #include <iostream>
