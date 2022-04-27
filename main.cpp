@@ -48,7 +48,6 @@ int main(int argc, char** argv)
         data.find("NAND") != string::npos || data.find("NOR") != string::npos ||
         data.find("XNOR") != string::npos) // Because trailing lines in files... Reasons
         {
-            cout << "[+] Found gate..." << endl;
             stringstream ss;
             string type_s, delay, junk;
             int type_i, delay_i, i1, i2, o;
@@ -124,9 +123,6 @@ int main(int argc, char** argv)
                 wires.push_back(newWire);
                 cout << data << endl;
             }
-            cout << "[+] All wires accounted for" << endl;
-            
-            
             for (int i = 0; i < wires.size(); i++) // fill Wire* data types for constructor
             {
                 if (wires.at(i)->getIndex() == i1) i1_wp = wires.at(i);
