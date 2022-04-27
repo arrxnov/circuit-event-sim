@@ -16,14 +16,12 @@ unsigned int Gate::evaluate() const {
         if      (type ==   OR) returnVal = HIGH;
         else if (type ==  NOR) returnVal = LOW;
         else if (type ==  NOT) returnVal = LOW; // Only possible instance of one high and one unknown is known
-        else std::cerr << "[GT EVAL] Unrecognized gate type" << std::endl;
     }
     else if ((i1 == UNKNOWN || i2 == UNKNOWN) && i1 + i2 == 2) // One low one unknown input
     {
-        if (type ==       AND) returnVal = LOW;
+        if      (type ==  AND) returnVal = LOW;
         else if (type == NAND) returnVal = HIGH;
         else if (type ==  NOT) returnVal = HIGH; // Again, output is known
-        else std::cerr << "[GT EVAL] Unrecognized gate type" << std::endl;
     }
     else // Do bitwise math on i1 and i2 to save the code
     {
@@ -34,7 +32,6 @@ unsigned int Gate::evaluate() const {
         else if (type == NAND) returnVal = unsigned int(!(i1 & i2));
         else if (type ==  NOR) returnVal = unsigned int(!(i1 | i2));
         else if (type == XNOR) returnVal = unsigned int(!(i1 ^ i2));
-        else std::cerr << "[GT EVAL] Unrecognized gate type" << std::endl;
     }
     return returnVal;
 }

@@ -32,19 +32,16 @@ void Wire::editDrives(Gate* g, int e=ADD)
             }
         }
     }
-
 }
 
 void Wire::printHistory() const
 {
     std::cout << "[Wire: " << *name << "::" << index << "] ";
-    
     for (int i = 0; i < history.size(); i++)
     {
         if (history.at(i) == HIGH) std::cout << "-";
         else if (history.at(i) == LOW) std::cout << "_";
         else if (history.at(i) == UNKNOWN) std::cout << "X";
-
         if (i > 90) break; // Time cap implementation
     }
 }
