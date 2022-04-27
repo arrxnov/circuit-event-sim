@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     
     vector<Gate*> gates;
     vector<Wire*> wires;
-    vector<string> events;
+    vector<string> events; // this was a mistake, though not the biggest one
     string type;
     string data;
     
@@ -56,16 +56,16 @@ int main(int argc, char** argv)
             Wire* o_wp  = nullptr; // VS complained if these didn't have their own lines. Not sure why that makes a difference
             ss << data;
             ss >> std::skipws >> type_s >> delay >> i1 >> i2 >> o;
-            if (type_s == "NOT") // Fill type_i for constructor
+            if (type_s ==       "NOT") // Fill type_i for constructor
             {
                                        o = i2; // edge case housekeeping
                                        type_i =  NOT;
             }
-            else if (type_s == "AND" ) type_i =  AND;
-            else if (type_s == "OR"  ) type_i =   OR;
-            else if (type_s == "XOR" ) type_i =  XOR;
+            else if (type_s ==  "AND") type_i =  AND;
+            else if (type_s ==   "OR") type_i =   OR;
+            else if (type_s ==  "XOR") type_i =  XOR;
             else if (type_s == "NAND") type_i = NAND;
-            else if (type_s == "NOR" ) type_i =  NOR;
+            else if (type_s ==  "NOR") type_i =  NOR;
             else if (type_s == "XNOR") type_i = XNOR;
 
             // Store the bit before ns in delay_i to be used by the rest of the logic
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
             if(counter == 1) values[1] = '\0';
             else if(counter == 2) values[2] = '\0';
             delay_i = stoi(values);
-
+            delay_i--; // Quick fix for delay issues
             // Test for uninputted wires connecting gates
             bool inWires1, inWires2, inWiresO = false;
             for (int j = 0; j < wires.size(); j++) if (i1 == wires.at(j)->getIndex()) inWires1 = true;
